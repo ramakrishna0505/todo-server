@@ -33,4 +33,61 @@ todoRoute.post("/create", async (req, res) => {
   }
 });
 
+todoRoute.get("/get", async (req, res) => {
+  try {
+    const user = await User.findOne({ email: req.body.email });
+    if (user) {
+      const todos = await ToDo.find({ userId: user._id });
+      return res.status(200).json({ todos });
+    }
+    return res.status(404).json({ message: "yevaru kavalamma neeku?" });
+  } catch (error) {
+    console.error("Oka chakkati catch", error);
+    console.error("Edo penta chesav chusko ra champaklal");
+    return res.status(500).json({
+      message:
+        "Maa server lo oka problem vachindi dayachesi kasepu aagi prayathnichandi",
+    });
+  }
+});
+
+todoRoute.put("/edit", async (req, res) => {
+  try {
+    const updateTodo = await ToDo.findOneAndUpdate(
+      { _id: req.body.todo._id },
+      { ...req.body.todo }
+    );
+    if (updateTodo) {
+      await updateTodo.save();
+      const todos = await ToDo.find({ userId: req.body.todo.userId });
+      return res.status(200).json({ todos });
+    }
+  } catch (error) {
+    console.error("Oka chakkati catch", error);
+    console.error("Edo penta chesav chusko ra champaklal");
+    return res.status(500).json({
+      message:
+        "Maa server lo oka problem vachindi dayachesi kasepu aagi prayathnichandi",
+    });
+  }
+});
+
+todoRoute.delete("/delete", async (req, res) => {
+  try {
+    const deleteTodo = await ToDo.findByIdAndDelete(req.body.todo._id);
+    if (deleteTodo) {
+      await deleteTodo.save();
+      const todos = await ToDo.find({ userId: req.body.todo.userId });
+      return res.status(200).json({ todos });
+    }
+  } catch (error) {
+    console.error("Oka chakkati catch", error);
+    console.error("Edo penta chesav chusko ra champaklal");
+    return res.status(500).json({
+      message:
+        "Maa server lo oka problem vachindi dayachesi kasepu aagi prayathnichandi",
+    });
+  }
+});
+
 module.exports = todoRoute;
